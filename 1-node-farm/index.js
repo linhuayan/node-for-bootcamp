@@ -1,6 +1,6 @@
-const fs = require("fs");
-const http = require("http");
-const url = require("url");
+const fs = require('fs');
+const http = require('http');
+const url = require('url');
 const replaceTemplate = require('./modules/replaceTemplate');
 const slugify = require('slugify');
 
@@ -36,55 +36,46 @@ const slugify = require('slugify');
 /////////////////////////////////
 // SERVER
 
-const tempCard = fs.readFileSync(
-	`${__dirname}/templates/template-card.html`,
-	"utf-8"
-);
-const tempProduct = fs.readFileSync(
-	`${__dirname}/templates/template-product.html`,
-	"utf-8"
-);
-const temOverview = fs.readFileSync(
-	`${__dirname}/templates/template-overview.html`,
-	"utf-8"
-);
-const data = fs.readFileSync(`${__dirname}/dev-data/data.json`, "utf-8");
+const tempCard = fs.readFileSync(`${__dirname}/templates/template-card.html`, 'utf-8');
+const tempProduct = fs.readFileSync(`${__dirname}/templates/template-product.html`, 'utf-8');
+const temOverview = fs.readFileSync(`${__dirname}/templates/template-overview.html`, 'utf-8');
+const data = fs.readFileSync(`${__dirname}/dev-data/data.json`, 'utf-8');
 const dataObj = JSON.parse(data);
-const slugs = dataObj.map(el => slugify(el.productName, {lower: true}));
+const slugs = dataObj.map((el) => slugify(el.productName, { lower: true }));
 console.log(slugs);
-console.log(slugify('Fresh Avocados', {lower: true}));
+console.log(slugify('Fresh Avocados', { lower: true }));
 const server = http.createServer((req, res) => {
-	// console.log(req.url);
-	// const pathName = req.url;
-	const {query, pathname: pathName} = url.parse(req.url, true);
-	// Overview page
-	if (pathName === "/" || pathName === "/overview") {
-		res.writeHead(200, { "Content-type": "text/html" });
-		const cardsHtml = dataObj.map((el) => replaceTemplate(tempCard, el)).join(''); //最后返回的是一个数组，而我们想要的是html字符串，所以要加join('')
-    	const overviewHtml = temOverview.replace(/{%PRODUCT_CARDS%}/, cardsHtml);
-		res.end(overviewHtml);
-		// Product page
-	} else if (pathName === "/product") {
-		res.writeHead(200, {"Content-type": "text/html"});
-		const product = dataObj[query.id];
-		const output = replaceTemplate(tempProduct, product);
-		res.end(output);
-		// API
-	} else if (pathName === "/api") {
-		res.writeHead(200, {
-			"Content-type": "application/json",
-		});
-		res.end(data);
-		// Not found
-	} else {
-		res.writeHead(404, {
-			"Content-type": "text/html",
-			"my-own-header": "hello-world",
-		});
-		res.end("<h1>Page not found!</h1>");
-	}
+  // console.log(req.url);
+  // const pathName = req.url;
+  const { query, pathname: pathName } = url.parse(req.url, true);
+  // Overview page
+  if (pathName === '/' || pathName === '/overview') {
+    res.writeHead(200, { 'Content-type': 'text/html' });
+    const cardsHtml = dataObj.map((el) => replaceTemplate(tempCard, el)).join(''); //最后返回的是一个数组，而我们想要的是html字符串，所以要加join('')
+    const overviewHtml = temOverview.replace(/{%PRODUCT_CARDS%}/, cardsHtml);
+    res.end(overviewHtml);
+    // Product page
+  } else if (pathName === '/product') {
+    res.writeHead(200, { 'Content-type': 'text/html' });
+    const product = dataObj[query.id];
+    const output = replaceTemplate(tempProduct, product);
+    res.end(output);
+    // API
+  } else if (pathName === '/api') {
+    res.writeHead(200, {
+      'Content-type': 'application/json',
+    });
+    res.end(data);
+    // Not found
+  } else {
+    res.writeHead(404, {
+      'Content-type': 'text/html',
+      'my-own-header': 'hello-world',
+    });
+    res.end('<h1>Page not found!</h1>');
+  }
 });
 
-server.listen(8008, "127.0.0.1", () => {
-	console.log("Listening to requests on port 8008");
+server.listen(8008, '127.0.0.1', () => {
+  console.log('Listening to requests on port 8008');
 });
