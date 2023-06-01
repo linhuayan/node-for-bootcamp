@@ -14,12 +14,20 @@ const tours = JSON.parse(
   fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`)
 );
 
-app.get('/api/v1/tours', (req, res) => {
+app.get('/api/v1/tours/:id', (req, res) => {
+  console.log(req.params);
+  const id = +req.params.id;
+  if (id > tours.length) {
+    return res.status(404).json({
+      status: 'fail',
+      message: 'Invalid ID',
+    });
+  }
+  const tour = tours.find((el) => el.id === id);
   res.status(200).json({
     status: 'success',
-    results: tours.length,
     data: {
-      tours,
+      tour,
     },
   });
 });
@@ -40,6 +48,36 @@ app.post('/api/v1/tours', (req, res) => {
       });
     }
   );
+});
+app.patch('/api/v1/tours/:id', (req, res) => {
+  const id = +req.params.id;
+  if (id > tours.length) {
+    return res.status(404).json({
+      status: 'fail',
+      message: 'Invalid ID',
+    });
+  }
+  res.status(200).json({
+    status: 'success',
+    data: {
+      tour: '<Updated tour here...>',
+    },
+  });
+});
+
+app.delete('/api/v1/tours/:id', (req, res) => {
+  const id = +req.params.id;
+  if (id > tours.length) {
+    return res.status(404).json({
+      status: 'fail',
+      message: 'Invalid ID',
+    });
+  }
+  // 204表示没有内容，不发送任何内容
+  res.status(204).json({
+    status: 'success',
+    data: null,
+  });
 });
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
