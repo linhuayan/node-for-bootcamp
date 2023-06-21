@@ -38,3 +38,5 @@ db.tours.deleteMany({ rating: {$lt: 4.8} })
 // 删除所有
 db.tours.deleteMany({})
 ```
+// duration[gte]=5 表示duration <= 5
+127.0.0.1:3000/api/v1/tours?duration[gte]=5&difficulty=easy&page=2
