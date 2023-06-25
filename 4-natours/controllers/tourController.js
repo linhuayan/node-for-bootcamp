@@ -1,34 +1,17 @@
 const Tour = require('../models/tourModel');
 // const fs = require('fs');
 
-// const tours = JSON.parse(
-//   fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`)
-// );
-
-// exports.checkID = (req, res, next, val) => {
-//   if (+req.params.id > tours.length) {
-//     return res.status(404).json({
-//       status: 'fail',
-//       message: 'Invalid ID',
-//     });
-//   }
-//   next();
-// }
-
-// exports.checkBody = (req, res, next) => {
-//   if (!req.body.name ||!req.body.price) {
-//     return res.status(400).json({
-//       status: 'fail',
-//       message: 'Name and price are required'
-//     });
-//   }
-//   next();
-// }
+exports.aliasTopTours = (req, res, next) => {
+  req.query.limit = '5';
+  req.query.sort = '-ratingsAverage,price';
+  req.query.fields = 'name,price,ratingsAverage,summary,difficulty';
+  next();
+};
 
 // 2) ROUTE HANDLERS
 exports.getAllTours = async (req, res) => {
   try {
-    console.log(req.query);
+    // console.log(req.query);
     // BUILD QUERY
     // 1A）Filtering
     const queryObj = {...req.query}
@@ -39,11 +22,35 @@ exports.getAllTours = async (req, res) => {
     let queryStr = JSON.stringify(queryObj);
     queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, match => `$${match}`);
 
-    const query = Tour.find(JSON.parse(queryStr));
-
+    let query = Tour.find(JSON.parse(queryStr));
     // 2) Sorting 
     if (req.query.sort) {
-      query = query.sort(req.query.sort);
+      const sortBy = req.query.sort.split(',').join(' ');
+      query = query.sort(sortBy);
+    } else {
+      query = query.sort('-createdAt');
+    }
+
+    // 3) Field limiting 
+    if (req.query.fields) {
+       const fields = req.query.fields.split(',').join(' ');
+       query = query.select(fields);
+    } else {
+      // 减去带下划线v的项
+      query = query.select('-__v');
+    }
+
+    // 4）Pagination
+    const page = req.query.page * 1 || 1;
+    const limit = req.query.limit * 1 || 100;
+    const skip = (page - 1) * limit;
+
+    // page=3&limit10, 1-10, page 1, 11-20, page 2, 21-30, page 3
+    query = query.skip(skip).limit(limit);
+
+    if (req.query.page) {
+      const numTours = await Tour.countDocuments();
+      if (skip >= numTours) throw new Error('This page does not exist');
     }
 
     // EXECUTE QUERY

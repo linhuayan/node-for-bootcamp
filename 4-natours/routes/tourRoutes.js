@@ -5,6 +5,7 @@ const {
   createTour,
   updateTour,
   deleteTour,
+  aliasTopTours,
   getTour,
   // checkID,
   // checkBody
@@ -19,6 +20,8 @@ const {
 
 // Before the tour is created, check the body 中间件
 // router.route('/').get(getAllTours).post(checkBody, createTour);
+
+router.route('/top-5-cheap').get(aliasTopTours, getAllTours);
 router.route('/').get(getAllTours).post(createTour);
 
 router.route('/:id').patch(updateTour).delete(deleteTour).get(getTour);

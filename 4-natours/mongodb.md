@@ -40,3 +40,12 @@ db.tours.deleteMany({})
 ```
 // duration[gte]=5 表示duration <= 5
 127.0.0.1:3000/api/v1/tours?duration[gte]=5&difficulty=easy&page=2
+
+const tours = await Tour.find().where('duration').equals(5).where('difficulty').equals('easy');
+
+127.0.0.1:3000/api/v1/tours?fields=name,duration,difficulty,price
+
+127.0.0.1:3000/api/v1/tours?fields=-name,-duration
+
+127.0.0.1:3000/api/v1/tours?sort=-price,ratingsAverage
+
