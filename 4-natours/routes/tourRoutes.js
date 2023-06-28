@@ -10,6 +10,7 @@ const {
   // checkID,
   // checkBody
 } = require('../controllers/tourController');
+const tourController = require('../controllers/tourController');
 
 // router.param('id', checkID);
 
@@ -22,6 +23,11 @@ const {
 // router.route('/').get(getAllTours).post(checkBody, createTour);
 
 router.route('/top-5-cheap').get(aliasTopTours, getAllTours);
+
+router.route('/tour-stats').get(tourController.getTourStats);
+
+router.route('/monthly-plan/:year').get(tourController.getMonthlyPlan);
+
 router.route('/').get(getAllTours).post(createTour);
 
 router.route('/:id').patch(updateTour).delete(deleteTour).get(getTour);
